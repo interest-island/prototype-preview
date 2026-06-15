@@ -66,7 +66,7 @@
   .chip:hover{color:var(--txt)}
   .chip.active{background:rgba(99,102,241,.1);color:var(--brand-d);border-color:rgba(99,102,241,.3)}
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,340px));gap:16px;justify-content:start}
   .tool-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);transition:.18s;cursor:pointer;display:flex;flex-direction:column;min-height:150px}
   .tool-card:hover{box-shadow:var(--shadow-h);transform:translateY(-3px)}
   .tc-top{display:flex;align-items:center;gap:8px;margin-bottom:11px;flex-wrap:wrap}
@@ -86,7 +86,7 @@
   .new-card .plus{width:44px;height:44px;border-radius:13px;background:rgba(99,102,241,.1);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:300}
   .kebab-wrap{position:relative}
   .kebab{width:26px;height:26px;border-radius:7px;color:var(--txt3);font-size:18px;display:flex;align-items:center;justify-content:center}.kebab:hover{background:var(--surface2);color:var(--txt)}
-  .kebab-menu{position:absolute;top:30px;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:11px;padding:6px;display:none;z-index:20;min-width:120px;box-shadow:var(--shadow-h)}
+  .kebab-menu{position:absolute;bottom:34px;top:auto;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:11px;padding:6px;display:none;z-index:20;min-width:120px;box-shadow:var(--shadow-h)}
   .kebab-menu.show{display:block}
   .kebab-menu button{display:flex;width:100%;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;font-size:13px;color:var(--txt)}.kebab-menu button:hover{background:var(--surface2)}.kebab-menu button.del{color:var(--red)}
 
@@ -157,6 +157,38 @@
   .metric.like.on{color:var(--red)}
   .copy-link{font-size:12.5px;font-weight:600;color:var(--brand-d);padding:6px 4px}
   .copy-link:hover{text-decoration:underline}
+
+  /* 搜索框 / 工具栏 */
+  .grid-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+  .search-box{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:0 12px;width:240px;max-width:100%;transition:.15s}
+  .search-box:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+  .search-box svg{width:15px;height:15px;color:var(--txt3);flex-shrink:0}
+  .search-box input{flex:1;border:none;outline:none;background:transparent;padding:9px 0;font-size:13px;color:var(--txt);font-family:inherit;min-width:0}
+  .search-box .clr{color:var(--txt3);font-size:16px;line-height:1;padding:0 2px;display:none}
+  .search-box .clr:hover{color:var(--txt)}
+  .search-box.has-val .clr{display:block}
+
+  /* 卡片网格：加载更多 / 空状态 */
+  .grid-empty{grid-column:1/-1;text-align:center;color:var(--txt3);font-size:13px;padding:44px 0}
+  .grid-more{text-align:center;margin-top:22px}
+  .grid-more .gm-info{font-size:12px;color:var(--txt3);margin-bottom:9px}
+
+  /* 表格：页码分页 */
+  .pager{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:16px}
+  .pager .pg-info{font-size:12px;color:var(--txt3);margin-right:auto}
+  .pg-num{min-width:32px;height:32px;padding:0 9px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--txt2);font-size:12.5px;font-weight:600;transition:.15s}
+  .pg-num:hover:not(:disabled):not(.on){border-color:var(--brand);color:var(--brand-d)}
+  .pg-num.on{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+  .pg-num:disabled{opacity:.4;cursor:not-allowed}
+  /* 回到顶部 */
+  .to-top{position:fixed;right:28px;bottom:28px;width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);box-shadow:var(--shadow-h);color:var(--txt2);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateY(10px);transition:.2s;z-index:60}
+  .to-top.show{opacity:1;visibility:visible;transform:none}
+  .to-top:hover{color:var(--brand-d);border-color:var(--brand)}
+  .to-top svg{width:20px;height:20px}
+  .pg-gap{padding:0 4px;color:var(--txt3)}
+  .pager .pg-jump{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--txt3);margin-left:8px}
+  .pager .pg-jump input{width:54px;height:32px;border:1px solid var(--border2);border-radius:8px;padding:0 8px;font-size:12.5px;color:var(--txt);outline:none;font-family:inherit}
+  .pager .pg-jump input:focus{border-color:var(--brand)}
 </style>
 </head>
 <body>
@@ -196,10 +228,22 @@
           <div class="tab" data-wtab="mine" onclick="wtab('mine')">我的创建</div>
           <div class="tab" data-wtab="config" onclick="wtab('config')">工具配置<span class="adm-dot">管理员</span></div>
         </div>
-        <div class="chips" id="filter">
-          <span class="chip active" data-f="all">全部</span><span class="chip" data-f="content">内容生产</span><span class="chip" data-f="data">数据洞察</span>
+        <div class="grid-toolbar" id="gridToolbar">
+          <div class="chips" id="filter" style="margin-bottom:0">
+            <span class="chip active" data-f="all">全部</span><span class="chip" data-f="content">内容生产</span><span class="chip" data-f="data">数据洞察</span>
+          </div>
+          <span style="flex:1"></span>
+          <div class="search-box" id="gridSearchBox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="gridSearch" placeholder="搜索工具名称 / 描述" oninput="onGridSearch()" onkeydown="if(event.key==='Escape')clearGridSearch()">
+            <button class="clr" onclick="clearGridSearch()">×</button>
+          </div>
         </div>
         <div class="grid" id="toolGrid"></div>
+        <div class="grid-more" id="gridMore" style="display:none">
+          <div class="gm-info" id="gridMoreInfo"></div>
+          <button class="btn btn-ghost" onclick="loadMoreGrid()">加载更多</button>
+        </div>
 
         <!-- 工具配置（管理端，仅管理员可见入口） -->
         <div id="configWrap" style="display:none">
@@ -208,6 +252,11 @@
               <span class="chip active" data-s="all">全部</span><span class="chip" data-s="official">官方</span><span class="chip" data-s="custom">教研自建</span>
             </div>
             <span style="flex:1"></span>
+            <div class="search-box" id="cfgSearchBox">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="cfgSearch" placeholder="搜索工具名称 / 描述" oninput="onCfgSearch()" onkeydown="if(event.key==='Escape')clearCfgSearch()">
+              <button class="clr" onclick="clearCfgSearch()">×</button>
+            </div>
             <button class="btn btn-primary btn-sm" onclick="openCfg(null)">＋ 新增工具</button>
           </div>
           <div class="panel" style="overflow:hidden">
@@ -216,6 +265,7 @@
               <tbody id="cfgBody"></tbody>
             </table>
           </div>
+          <div class="pager" id="cfgPager"></div>
         </div>
       </section>
 
@@ -243,12 +293,12 @@
 <!-- 导入 modal（原样保留） -->
 <div class="modal-mask" id="importModal">
   <div class="modal"><span class="modal-x" onclick="closeImport()">×</span>
-    <h3>导入本地 skill</h3><p class="sub">上传 skill 文件并填写信息，导入后可在工坊内共享下载</p>
-    <button class="opt" onclick="pickSkillFile()"><div class="oi" style="background:rgba(79,140,255,.15)">📁</div><div><h4 id="impFileName">选择本地文件</h4><p>支持导入格式：.zip（包内含 SKILL.md）</p></div></button>
+    <h3 id="impTitle">导入本地 skill</h3><p class="sub">上传 skill 文件并填写信息，导入后可在工坊内共享下载</p>
+    <button class="opt" id="impFileRow" onclick="pickSkillFile()"><div class="oi" style="background:rgba(79,140,255,.15)">📁</div><div><h4 id="impFileName">选择本地文件</h4><p>支持导入格式：.zip（包内含 SKILL.md）</p></div></button>
     <div class="cfg-field" style="margin-top:16px"><label>技能名称 *</label><input class="inp" id="impName" placeholder="如：书法课教案生成助手"></div>
     <div class="cfg-field"><label>描述 *</label><textarea class="inp" id="impDesc" placeholder="一句话说明这个技能做什么、产出什么"></textarea></div>
     <div class="cfg-field"><label>分类场景 *</label><select class="inp" id="impScn"><option value="content">内容生产</option><option value="data">数据洞察</option></select></div>
-    <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" onclick="doImport()">解析并导入</button><button class="btn btn-ghost" onclick="closeImport()">取消</button></div>
+    <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" id="impSubmit" onclick="doImport()">解析并导入</button><button class="btn btn-ghost" onclick="closeImport()">取消</button></div>
   </div>
 </div>
 <!-- 工具配置：新增/编辑 modal -->
@@ -284,6 +334,7 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<button class="to-top" id="toTop" onclick="scrollContentTop()" title="回到顶部"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 
 <script>
 const crumbMap={square:'工具广场',assistant:'AI 智能助手',insight:'用户洞察中心',content:'内容库',tags:'标签库',category:'品类库'};
@@ -318,7 +369,30 @@ let TOOLS=[
 ];
 const scopeLabel={official:'官方',team:'团队',mine:'我的'};
 const USERS=['李婉清','张老师','陈老师','周老师','吴老师'];
+
+/* ===== 原型演示数据（批量造数据，便于体验搜索/分页/无限滚动；正式接后端时删除整段 IIFE） ===== */
+(function seedDemo(){
+  const topics=['书法','水彩','摄影','声乐','烘焙','茶艺','国画','少儿英语','钢琴','舞蹈','写作','短视频','花艺','瑜伽','象棋','演讲'];
+  const agentFns=['课程顾问','学情分析','答疑助手','选题论证','转化诊断'];
+  const skillFns=['大纲生成','教案生成','文案润色','分镜脚本','海报文案','练习单生成'];
+  const teachers=['李婉清','张老师','陈老师','周老师','吴老师'];
+  const ri=(a,b)=>a+Math.floor(Math.random()*(b-a));
+  const at=(arr,i)=>arr[i%arr.length];
+  let id=100,ti=0,ai=0,si=0;
+  for(let k=0;k<22;k++){const nm=at(topics,ti++)+at(agentFns,ai++);
+    TOOLS.push({id:id++,type:'agent',scn:k%2?'data':'content',off:true,scope:'official',name:nm,desc:nm+'：原型演示数据，用于体验搜索与分页。',likes:ri(20,400),uses:ri(100,6000),botId:'bot_'+ri(1000,9999)+'***'+ri(100,999),status:(k%5===0?'draft':'on'),vis:'all',visList:[],reply:'（示意回复）'});}
+  for(let k=0;k<12;k++){const nm=at(topics,ti++)+at(skillFns,si++);
+    TOOLS.push({id:id++,type:'skill',scn:k%2?'data':'content',off:true,scope:'official',name:nm,desc:nm+'：原型演示数据。',likes:ri(20,300),uses:ri(100,5000)});}
+  for(let k=0;k<16;k++){const nm=at(topics,ti++)+at(skillFns,si++);
+    TOOLS.push({id:id++,type:'skill',scn:k%2?'data':'content',scope:'team',by:at(teachers,k),name:nm+'·团队',desc:nm+'：团队共享，原型演示数据。',likes:ri(10,200),uses:ri(50,1500)});}
+  for(let k=0;k<16;k++){const nm=at(topics,ti++)+at(skillFns,si++);
+    TOOLS.push({id:id++,type:'skill',scn:k%2?'data':'content',scope:'mine',pub:k%4===0,name:'我的·'+nm,desc:nm+'：我的创建，原型演示数据。',likes:ri(0,80),uses:ri(0,400)});}
+})();
+/* ===== 演示数据结束 ===== */
+
 let curFilter='all',curTab='square';
+const GRID_BATCH=48;                /* 卡片网格每次加载数量（48 可被 3/4/6/8 整除，对齐常见列数）*/
+let gridSearch='',gridShown=GRID_BATCH;
 function tool(id){return TOOLS.find(t=>t.id===id);}
 function visible(t){
   if(curTab==='mine'&&t.scope!=='mine')return false;
@@ -331,10 +405,15 @@ function cardHTML(t){
   const isSkill=t.type==='skill';
   let acts='';
   if(curTab==='mine'){
-    const delBtn = t.pub
-      ? `<button class="copy-link" style="color:var(--txt3);cursor:not-allowed" onclick="event.stopPropagation();toast('请取消发布后删除')">删除</button>`
-      : `<button class="copy-link" style="color:var(--red)" onclick="event.stopPropagation();delTool(${t.id})">删除</button>`;
-    acts=`<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();togglePub(${t.id})">${t.pub?'取消发布':'发布'}</button>${delBtn}`;
+    const editItem = t.pub
+      ? `<button style="opacity:.55;cursor:not-allowed" onclick="event.stopPropagation();toast('已发布工具不可编辑，请先取消发布')">✎ 编辑</button>`
+      : `<button onclick="event.stopPropagation();editSkill(${t.id})">✎ 编辑</button>`;
+    const delItem = t.pub
+      ? `<button class="del" style="opacity:.55;cursor:not-allowed" onclick="event.stopPropagation();toast('请取消发布后删除')">🗑 删除</button>`
+      : `<button class="del" onclick="event.stopPropagation();delTool(${t.id})">🗑 删除</button>`;
+    acts=`<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();togglePub(${t.id})">${t.pub?'取消发布':'发布'}</button>`+
+      `<div class="kebab-wrap"><button class="kebab" onclick="event.stopPropagation();toggleMenu(this)">⋯</button>`+
+      `<div class="kebab-menu">${editItem}${delItem}</div></div>`;
   }else{
     acts=isSkill
       ? `<button class="copy-link" onclick="event.stopPropagation();downloadSkill(${t.id})">⬇ 下载</button>`
@@ -351,23 +430,62 @@ function cardHTML(t){
     <div class="tc-foot"><span class="tc-metrics">${metrics}</span><span class="acts">${acts}</span></div>
   </div>`;
 }
+function gridFullList(){
+  const kw=gridSearch.trim().toLowerCase();
+  return TOOLS.filter(visible).filter(t=>!kw||(t.name+' '+t.desc).toLowerCase().includes(kw));
+}
 function renderTools(){
-  const list=TOOLS.filter(visible);
-  let html = curTab==='mine'?`<div class="tool-card new-card" onclick="openImport()"><div class="plus">+</div><div style="font-weight:600">导入 skill</div><div style="font-size:12px">上传本地 skill 文件</div></div>`:'';
-  document.getElementById('toolGrid').innerHTML=html+list.map(cardHTML).join('');
+  const full=gridFullList();
+  const list=full.slice(0,gridShown);
+  const newCard = curTab==='mine'?`<div class="tool-card new-card" onclick="openImport()"><div class="plus">+</div><div style="font-weight:600">导入 skill</div><div style="font-size:12px">上传本地 skill 文件</div></div>`:'';
+  const cards=full.length?list.map(cardHTML).join(''):`<div class="grid-empty">未找到匹配的工具${gridSearch?'，换个关键词试试':''}</div>`;
+  document.getElementById('toolGrid').innerHTML=newCard+cards;
+  const more=document.getElementById('gridMore');
+  if(full.length>gridShown){
+    more.style.display='block';
+    document.getElementById('gridMoreInfo').textContent=`已显示 ${list.length} / ${full.length}`;
+  }else{
+    more.style.display='none';
+  }
   document.getElementById('newBtn').style.display = curTab==='mine'?'inline-flex':'none';
+}
+function onGridSearch(){
+  gridSearch=document.getElementById('gridSearch').value;
+  document.getElementById('gridSearchBox').classList.toggle('has-val',!!gridSearch);
+  gridShown=GRID_BATCH;renderTools();
+}
+function clearGridSearch(){
+  document.getElementById('gridSearch').value='';gridSearch='';
+  document.getElementById('gridSearchBox').classList.remove('has-val');
+  gridShown=GRID_BATCH;renderTools();
+}
+function loadMoreGrid(){gridShown+=GRID_BATCH;renderTools();}
+/* 无限滚动：滚到接近底部(哨兵进入视口)自动加载下一批，按钮作为兜底 */
+let gridObserver=null;
+function setupGridObserver(){
+  if(!('IntersectionObserver' in window))return;   /* 不支持则保留手动按钮 */
+  const sentinel=document.getElementById('gridMore');
+  const root=document.getElementById('content');
+  gridObserver=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting && gridFullList().length>gridShown)loadMoreGrid();
+    });
+  },{root:root,rootMargin:'150px 0px'});            /* 提前 150px 预加载 */
+  gridObserver.observe(sentinel);
 }
 function wtab(tb){
   curTab=tb;
   document.querySelectorAll('[data-wtab]').forEach(x=>x.classList.toggle('active',x.dataset.wtab===tb));
   const isCfg = tb==='config';
-  document.getElementById('filter').style.display=isCfg?'none':'flex';
+  document.getElementById('gridToolbar').style.display=isCfg?'none':'flex';
   document.getElementById('toolGrid').style.display=isCfg?'none':'grid';
+  document.getElementById('gridMore').style.display='none';
   document.getElementById('configWrap').style.display=isCfg?'block':'none';
   document.getElementById('newBtn').style.display = tb==='mine'?'inline-flex':'none';
-  if(isCfg)renderCfg();else renderTools();
+  if(isCfg){renderCfg();}
+  else{clearGridSearch();}   /* 切换 Tab 时重置搜索与已加载数量并重渲染 */
 }
-document.getElementById('filter').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;curFilter=c.dataset.f;document.querySelectorAll('#filter .chip').forEach(x=>x.classList.toggle('active',x===c));renderTools();});
+document.getElementById('filter').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;curFilter=c.dataset.f;document.querySelectorAll('#filter .chip').forEach(x=>x.classList.toggle('active',x===c));gridShown=GRID_BATCH;renderTools();});
 function toggleMenu(btn){const m=btn.nextElementSibling,open=m.classList.contains('show');document.querySelectorAll('.kebab-menu.show').forEach(x=>x.classList.remove('show'));if(!open)m.classList.add('show');}
 document.addEventListener('click',()=>{document.querySelectorAll('.kebab-menu.show').forEach(x=>x.classList.remove('show'));});
 function likeTool(id){const t=tool(id);if(!t)return;t.likes=t.likes||0;if(t.liked){t.liked=false;t.likes--;}else{t.liked=true;t.likes++;}renderTools();}
@@ -404,9 +522,26 @@ function dlFromDetail(){if(curSkill){downloadSkill(curSkill.id);closeSkill();}}
 function downloadSkill(id){const t=tool(id);if(!t)return;t.uses=(t.uses||0)+1;renderTools();toast('已下载 skill 文件：'+t.name+'.zip（可自行修改后再上传）');}
 
 /* ===== import（原样保留） ===== */
+let impEditId=null;
 function openImport(){
+  impEditId=null;
+  document.getElementById('impTitle').textContent='导入本地 skill';
+  document.getElementById('impSubmit').textContent='解析并导入';
+  document.getElementById('impFileRow').style.display='flex';
   document.getElementById('impName').value='';document.getElementById('impDesc').value='';document.getElementById('impScn').value='content';document.getElementById('impFileName').textContent='选择本地文件';
   document.getElementById('importModal').classList.add('show');}
+function editSkill(id){
+  const t=tool(id);if(!t)return;
+  impEditId=id;
+  document.getElementById('impTitle').textContent='编辑 skill';
+  document.getElementById('impSubmit').textContent='保存修改';
+  document.getElementById('impFileRow').style.display='none';   /* 编辑只改信息，无需重传文件 */
+  document.getElementById('impName').value=t.name;
+  document.getElementById('impDesc').value=t.desc;
+  document.getElementById('impScn').value=t.scn;
+  document.getElementById('impFileName').textContent='选择本地文件';
+  document.getElementById('importModal').classList.add('show');
+}
 function closeImport(){document.getElementById('importModal').classList.remove('show');}
 function pickSkillFile(){document.getElementById('impFileName').textContent='material_skill.zip';toast('已选择文件：material_skill.zip');}
 function doImport(){
@@ -414,19 +549,25 @@ function doImport(){
   const desc=(document.getElementById('impDesc').value||'').trim();
   const scn=document.getElementById('impScn').value;
   if(!name||!desc){toast('请填写技能名称和描述');return;}
+  if(impEditId){Object.assign(tool(impEditId),{name,desc,scn});closeImport();renderTools();toast('已保存修改');return;}
   TOOLS.push({id:Date.now(),type:'skill',scn:scn,scope:'mine',pub:false,name:name,desc:desc,uses:0,likes:0});
-  closeImport();curTab='mine';document.querySelectorAll('[data-wtab]').forEach(x=>x.classList.toggle('active',x.dataset.wtab==='mine'));renderTools();go('square');toast('已导入，可发布到工具广场供下载');}
+  closeImport();go('square');wtab('mine');toast('已导入，可发布到工具广场供下载');}
 ['importModal','cfgModal','jumpModal','skillModal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target.id===id)e.target.classList.remove('show');}));
 
 /* ===== 工具配置（管理端）===== */
 let cfgEditId=null,cfVis='all',cfVisList=[],cfgSrcF='all';
+const CFG_PAGE_SIZE=8;             /* 配置表格每页条数 */
+let cfgSearch='',cfgPage=1;
 const stLabel={on:'<span class="st-pill st-on">已上架</span>',draft:'<span class="st-pill st-draft">草稿</span>',off:'<span class="st-pill st-off">已下架</span>'};
-document.getElementById('cfgSrc').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;cfgSrcF=c.dataset.s;document.querySelectorAll('#cfgSrc .chip').forEach(x=>x.classList.toggle('active',x===c));renderCfg();});
+document.getElementById('cfgSrc').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;cfgSrcF=c.dataset.s;document.querySelectorAll('#cfgSrc .chip').forEach(x=>x.classList.toggle('active',x===c));cfgPage=1;renderCfg();});
 function cfgRow(t){
   const isOff=t.scope==='official';
   if(isOff){
     const st=t.status||'on';
-    const op=`<button class="op-link" onclick="openCfg(${t.id})">编辑</button>`+
+    const editBtn = st==='on'
+      ? `<button class="op-link" style="opacity:.45;cursor:not-allowed" onclick="toast('已上架工具不可编辑，请先下架')">编辑</button>`
+      : `<button class="op-link" onclick="openCfg(${t.id})">编辑</button>`;
+    const op=editBtn+
       (st==='on'
         ?`<button class="op-link red" onclick="setSt(${t.id},'off')">下架</button>`
         :`<button class="op-link green" onclick="setSt(${t.id},'on')">上架</button>`);
@@ -450,15 +591,73 @@ function cfgRow(t){
     <td style="font-size:12px">—</td>
     <td>${st}</td><td>—</td></tr>`;
 }
-function renderCfg(){
-  const list=TOOLS.filter(t=>{
+/* 后端分页预留：数据量大时把 cfgFullList()+slice 换成一次远程请求即可，渲染层只依赖 {当前页 list, total}。
+   - offset 版： GET /api/tools?source=&keyword=&page=&pageSize=  → { list, total }
+   - cursor 版： GET /api/tools?source=&keyword=&cursor=&limit=    → { list, nextCursor, hasMore } */
+function cfgFullList(){
+  const kw=cfgSearch.trim().toLowerCase();
+  return TOOLS.filter(t=>{
     const isOff=t.scope==='official';
     if(isOff&&t.type!=='agent')return false;
-    if(cfgSrcF==='official')return isOff;
-    if(cfgSrcF==='custom')return !isOff;
+    if(cfgSrcF==='official'&&!isOff)return false;
+    if(cfgSrcF==='custom'&&isOff)return false;
+    if(kw&&!(t.name+' '+t.desc).toLowerCase().includes(kw))return false;
     return true;
   });
-  document.getElementById('cfgBody').innerHTML=list.map(cfgRow).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--txt3);padding:30px">暂无工具</td></tr>';
+}
+function renderCfg(){
+  const full=cfgFullList();
+  const pages=Math.max(1,Math.ceil(full.length/CFG_PAGE_SIZE));
+  if(cfgPage>pages)cfgPage=pages;
+  if(cfgPage<1)cfgPage=1;
+  const start=(cfgPage-1)*CFG_PAGE_SIZE;
+  const list=full.slice(start,start+CFG_PAGE_SIZE);
+  document.getElementById('cfgBody').innerHTML=list.map(cfgRow).join('')||`<tr><td colspan="8" style="text-align:center;color:var(--txt3);padding:30px">${cfgSearch?'未找到匹配的工具，换个关键词试试':'暂无工具'}</td></tr>`;
+  renderCfgPager(full.length,pages);
+}
+/* 省略号页码窗口：始终显示首尾页 + 当前页左右各 sibling 页，断档处插入 … */
+function cfgPageItems(cur,total,sibling=1){
+  const set=new Set([1,total]);
+  for(let i=cur-sibling;i<=cur+sibling;i++)if(i>=1&&i<=total)set.add(i);
+  const arr=[...set].sort((a,b)=>a-b);
+  const out=[];let prev=0;
+  for(const p of arr){if(p-prev>1)out.push('…');out.push(p);prev=p;}
+  return out;
+}
+function renderCfgPager(total,pages){
+  const el=document.getElementById('cfgPager');
+  if(!total){el.innerHTML='';return;}
+  const nums=cfgPageItems(cfgPage,pages).map(p=>
+    p==='…'
+      ? `<span class="pg-gap">…</span>`
+      : `<button class="pg-num${p===cfgPage?' on':''}" onclick="gotoCfgPage(${p})">${p}</button>`
+  ).join('');
+  el.innerHTML=`<span class="pg-info">共 ${total} 条 · 第 ${cfgPage}/${pages} 页</span>`+
+    `<button class="pg-num" onclick="gotoCfgPage(${cfgPage-1})" ${cfgPage===1?'disabled':''}>上一页</button>`+
+    nums+
+    `<button class="pg-num" onclick="gotoCfgPage(${cfgPage+1})" ${cfgPage===pages?'disabled':''}>下一页</button>`+
+    (pages>1?`<span class="pg-jump">跳至 <input type="number" min="1" max="${pages}" id="cfgJump" onkeydown="if(event.key==='Enter')jumpCfg()"> 页 <button class="pg-num" onclick="jumpCfg()">Go</button></span>`:'');
+}
+function gotoCfgPage(p){
+  const pages=Math.max(1,Math.ceil(cfgFullList().length/CFG_PAGE_SIZE));
+  if(p<1||p>pages)return;
+  cfgPage=p;renderCfg();
+}
+function jumpCfg(){
+  const el=document.getElementById('cfgJump');
+  const v=parseInt(el&&el.value,10);
+  if(!v){toast('请输入页码');return;}
+  gotoCfgPage(v);
+}
+function onCfgSearch(){
+  cfgSearch=document.getElementById('cfgSearch').value;
+  document.getElementById('cfgSearchBox').classList.toggle('has-val',!!cfgSearch);
+  cfgPage=1;renderCfg();
+}
+function clearCfgSearch(){
+  document.getElementById('cfgSearch').value='';cfgSearch='';
+  document.getElementById('cfgSearchBox').classList.remove('has-val');
+  cfgPage=1;renderCfg();
 }
 function setSt(id,s){
   const t=tool(id);if(!t)return;
@@ -490,6 +689,14 @@ function saveCfg(){
 }
 
 renderTools();
+setupGridObserver();
+/* 回到顶部：内容区滚动超过一屏时显示，点击平滑回顶 */
+(function(){
+  const c=document.getElementById('content');
+  function scrollContentTop(){c.scrollTo({top:0,behavior:'smooth'});}
+  window.scrollContentTop=scrollContentTop;
+  c.addEventListener('scroll',()=>{document.getElementById('toTop').classList.toggle('show',c.scrollTop>c.clientHeight*0.6);});
+})();
 </script>
 </body>
 </html>
