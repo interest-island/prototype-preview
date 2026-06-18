@@ -346,7 +346,7 @@
     </div>
     <div class="cfg-field"><label>工具标识 / 接口 *</label><input class="inp" id="cfBotId" placeholder="如：tool_outline_gen（Agent 平台提供）" style="font-family:ui-monospace,Menlo,monospace"></div>
     <div class="cfg-field" id="cfInputsField"><label>输入定义 <span style="color:var(--txt3);font-weight:400">（使用页据此渲染表单；提交后字段值拼成发给 Agent 的提问）</span></label>
-      <div class="inb-head"><span>字段名</span><span>类型</span><span>必填</span><span>提示语</span><span></span></div>
+      <div class="inb-head"><span>字段名</span><span>类型</span><span>必填</span><span>提示语 / 下拉选项</span><span></span></div>
       <div id="cfInputs"></div>
       <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="addCfInput()">＋ 添加字段</button>
     </div>
@@ -388,13 +388,13 @@ let toastT;function toast(m){const t=document.getElementById('toast');t.innerHTM
 const typeLabel={skill:'技能',agent:'Agent'};
 const scnLabel={content:'内容生产',data:'数据洞察'};
 let TOOLS=[
- {id:1,type:'agent',scn:'content',off:true,scope:'official',name:'新课制作向导',desc:'听懂"做新课"意图，引导你从主题到成稿',likes:156,uses:3200,botId:'tool_new_course',status:'on',vis:'all',visList:[],form:'form',outputType:'outline',inputs:[{label:'课程主题',type:'text',req:true,ph:'如：中老年手机摄影'},{label:'目标人群',type:'select',req:false,ph:''},{label:'讲数',type:'number',req:false,ph:'如：8'}],
+ {id:1,type:'agent',scn:'content',off:true,scope:'official',name:'新课制作向导',desc:'听懂"做新课"意图，引导你从主题到成稿',likes:156,uses:3200,botId:'tool_new_course',status:'on',vis:'all',visList:[],form:'form',outputType:'outline',inputs:[{label:'课程主题',type:'text',req:true,ph:'如：中老年手机摄影'},{label:'目标人群',type:'select',req:false,options:'零基础,进阶,全部人群'},{label:'讲数',type:'number',req:false,ph:'如：8'}],
   reply:'已根据你的输入生成（示意）。'},
  {id:2,type:'skill',scn:'content',off:true,scope:'official',name:'课程大纲生成',desc:'根据主题和学员生成结构化大纲',likes:86,uses:890},
  {id:3,type:'skill',scn:'content',off:true,scope:'official',name:'教案生成',desc:'基于大纲生成含目标/话术/互动的教案',likes:210,uses:5400},
  {id:4,type:'skill',scn:'content',off:true,scope:'official',name:'适老化检测',desc:'对内容做适老化评分并标注改进点',likes:52,uses:420},
  {id:5,type:'skill',scn:'content',off:true,scope:'official',name:'物料生成',desc:'按主题生成直播脚本/互动话术/预告/海报文案',likes:64,uses:610},
- {id:6,type:'agent',scn:'data',off:true,scope:'official',name:'学情分析助手',desc:'分析学员学习数据，生成学情报告与建议',likes:128,uses:2400,botId:'tool_learning_analysis',status:'on',vis:'all',visList:[],form:'form',outputType:'table',inputs:[{label:'营期 / 课程',type:'text',req:true,ph:'如：春季摄影营 3 期'},{label:'分析维度',type:'select',req:false,ph:''}],
+ {id:6,type:'agent',scn:'data',off:true,scope:'official',name:'学情分析助手',desc:'分析学员学习数据，生成学情报告与建议',likes:128,uses:2400,botId:'tool_learning_analysis',status:'on',vis:'all',visList:[],form:'form',outputType:'table',inputs:[{label:'营期 / 课程',type:'text',req:true,ph:'如：春季摄影营 3 期'},{label:'分析维度',type:'select',req:false,options:'到课率,完课率,作业提交,互动活跃'}],
   reply:'已按你选择的维度生成学情报告，可在右侧查看；想深入某项可继续追问。'},
  {id:7,type:'skill',scn:'data',off:true,scope:'official',name:'上课数据分析',desc:'按营期/课程维度统计并归因关键指标',likes:45,uses:380},
  {id:8,type:'skill',scn:'content',scope:'team',by:'李婉清',name:'适老化口语化润色',desc:'对已有文本做口语化、适老化改写',likes:97,uses:1100},
@@ -545,7 +545,7 @@ function uHead(t){
 function fieldHTML(f){
   const lab=`<label>${f.label}${f.req?' *':''}</label>`;
   if(f.type==='textarea')return `<div class="u-field">${lab}<textarea placeholder="${f.ph||''}"></textarea></div>`;
-  if(f.type==='select')return `<div class="u-field">${lab}<select><option>零基础</option><option>进阶</option><option>全部维度</option></select></div>`;
+  if(f.type==='select'){const opts=(f.options?f.options.split(/[,，]/):['选项一','选项二']).map(o=>o.trim()).filter(Boolean);return `<div class="u-field">${lab}<select>${opts.map(o=>`<option>${o}</option>`).join('')}</select></div>`;}
   if(f.type==='file')return `<div class="u-field">${lab}<button class="btn btn-ghost btn-sm" style="width:100%" onclick="toast('已选择文件（示意）')">📁 选择文件</button></div>`;
   if(f.type==='number')return `<div class="u-field">${lab}<input type="number" placeholder="${f.ph||''}"></div>`;
   return `<div class="u-field">${lab}<input type="text" placeholder="${f.ph||''}"></div>`;
@@ -828,9 +828,11 @@ function renderCfInputs(){
   const tp={text:'文本',textarea:'多行',select:'下拉',number:'数字',file:'文件'};
   document.getElementById('cfInputs').innerHTML=cfInputs.map((f,i)=>`<div class="inb-row">
     <input value="${(f.label||'').replace(/"/g,'&quot;')}" oninput="cfInputs[${i}].label=this.value" placeholder="字段名">
-    <select onchange="cfInputs[${i}].type=this.value">${Object.keys(tp).map(k=>`<option value="${k}" ${f.type===k?'selected':''}>${tp[k]}</option>`).join('')}</select>
+    <select onchange="cfInputs[${i}].type=this.value;renderCfInputs()">${Object.keys(tp).map(k=>`<option value="${k}" ${f.type===k?'selected':''}>${tp[k]}</option>`).join('')}</select>
     <span class="ck ${f.req?'on':''}" onclick="cfInputs[${i}].req=!cfInputs[${i}].req;renderCfInputs()">${f.req?'✓':'○'}</span>
-    <input value="${(f.ph||'').replace(/"/g,'&quot;')}" oninput="cfInputs[${i}].ph=this.value" placeholder="提示语">
+    ${f.type==='select'
+      ? `<input value="${(f.options||'').replace(/"/g,'&quot;')}" oninput="cfInputs[${i}].options=this.value" placeholder="选项，逗号分隔，如：零基础,进阶">`
+      : `<input value="${(f.ph||'').replace(/"/g,'&quot;')}" oninput="cfInputs[${i}].ph=this.value" placeholder="提示语">`}
     <span class="rm" onclick="cfInputs.splice(${i},1);renderCfInputs()">✕</span>
   </div>`).join('');
 }
